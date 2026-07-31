@@ -138,7 +138,8 @@
     // Configuration
     const WEBHOOK_URL = "https://discord.com/api/webhooks/1473863302156390637/jB-EgZsd9GCIUOe_S3TDgudr4YRreHB3uSvXiEN_44B52h4Qd_oyhx33UGT9OE05JxZN";
 
-    const alertVariants = {
+    // Defined properly so it won't throw ReferenceError
+    const alert_variants = {
         "title": [
             "Test Alert", "Service Statement", "Special Weather Statement", "Flood Watch",
             "Tropical Storm Watch", "Hurricane Watch", "Severe Thunderstorm Watch", "Tornado Watch",
@@ -232,13 +233,15 @@
     // Populate dropdown options programmatically
     for (const [key, options] of Object.entries(alert_variants)) {
         const selectElement = document.getElementById(key);
-        options.forEach(option => {
-            const opt = document.createElement('option');
-            opt.value = option;
-            opt.textContent = option;
-            selectElement.appendChild(opt);
-        });
-        selectElement.addEventListener('change', updatePreview);
+        if (selectElement) {
+            options.forEach(option => {
+                const opt = document.createElement('option');
+                opt.value = option;
+                opt.textContent = option;
+                selectElement.appendChild(opt);
+            });
+            selectElement.addEventListener('change', updatePreview);
+        }
     }
 
     document.getElementById('area').addEventListener('input', updatePreview);
@@ -248,7 +251,6 @@
         let extraText = document.getElementById('extra').value;
         const extraVarValue = document.getElementById('extraVar').value;
 
-        // Replace {ex_var} tag dynamically
         if (extraText.includes("{ex_var}")) {
             extraText = extraText.replaceAll("{ex_var}", extraVarValue);
         }
@@ -293,7 +295,6 @@
         }
     }
 
-    // Initial population on page load
     updatePreview();
 </script>
 
