@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NDC Alert Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            margin-top: 0;
+            color: #0056b3;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], select, textarea {
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        textarea {
+            resize: vertical;
+            height: 100px;
+        }
+        .preview-box {
+            background-color: #272822;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            min-height: 120px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>NDC Alert Generator</h2>
+
+    <div class="form-group">
+        <label for="titleInput">Title:</label>
+        <input type="text" id="titleInput" placeholder="Enter alert title...">
+    </div>
+
+    <div class="form-group">
+        <label for="tornadoWind">Estimated Tornado Wind:</label>
+        <select id="tornadoWind">
+            <option>Not Available</option>
+            <option>80-90 MPH</option>
+            <option>90-100 MPH</option>
+            <option>100-110 MPH</option>
+            <option>110-120 MPH</option>
+            <option>120-130 MPH</option>
+            <option>130-140 MPH</option>
+            <option>140-150 MPH</option>
+            <option>150-160 MPH</option>
+            <option>160-170 MPH</option>
+            <option>170-180 MPH</option>
+            <option>180-190 MPH</option>
+            <option>190-200 MPH</option>
+            <option>200+ MPH</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="hailSize">Estimated Hail Size:</label>
+        <select id="hailSize">
+            <option>None</option>
+            <option>0.50-1.00 Inch</option>
+            <option>1.00-1.50 Inch</option>
+            <option>1.50-2.00 Inch</option>
+            <option>2.00-2.50 Inch</option>
+            <option>2.50-3.00 Inch</option>
+            <option>3.00-3.50 Inch</option>
+            <option>3.50-4.00 Inch</option>
+            <option>4.00-4.50 Inch</option>
+            <option>4.50-5.00 Inch</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="windSpeed">Estimated Wind Speed:</label>
+        <select id="windSpeed">
+            <option>None</option>
+            <option>30 MPH</option>
+            <option>45 MPH</option>
+            <option>60 MPH</option>
+            <option>70 MPH</option>
+            <option>80 MPH</option>
+            <option>90 MPH</option>
+            <option>100 MPH</option>
+            <option>110 MPH</option>
+            <option>120 MPH</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="customTextBox">Custom Bottom Text:</label>
+        <textarea id="customTextBox" placeholder="Enter custom message here..."></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>Generated Alert Preview:</label>
+        <div id="previewText" class="preview-box"></div>
+    </div>
+</div>
+
+<script>
+    const titleInput = document.getElementById('titleInput');
+    const tornadoWind = document.getElementById('tornadoWind');
+    const hailSize = document.getElementById('hailSize');
+    const windSpeed = document.getElementById('windSpeed');
+    const customTextBox = document.getElementById('customTextBox');
+    const previewText = document.getElementById('previewText');
+
+    function updatePreview() {
+        let alertText = "";
+
+        const titleText = titleInput.value.trim();
+        if (titleText) {
+            alertText += `Title: ${titleText}\n`;
+        }
+
+        alertText += `Estimated Tornado Wind: ${tornadoWind.value}\n`;
+        alertText += `Estimated Hail Size: ${hailSize.value}\n`;
+        alertText += `Estimated Wind Speed: ${windSpeed.value}\n\n`;
+
+        const customText = customTextBox.value.trim();
+        if (customText) {
+            alertText += customText;
+        }
+
+        previewText.textContent = alertText;
+    }
+
+    // Attach event listeners to all input elements
+    titleInput.addEventListener('input', updatePreview);
+    tornadoWind.addEventListener('change', updatePreview);
+    hailSize.addEventListener('change', updatePreview);
+    windSpeed.addEventListener('change', updatePreview);
+    customTextBox.addEventListener('input', updatePreview);
+
+    // Initial call to populate preview on load
+    updatePreview();
+</script>
+
+</body>
+</html>
