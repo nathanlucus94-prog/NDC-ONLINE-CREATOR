@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NDC Alert Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            margin-top: 0;
+            color: #0056b3;
+        }
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], select {
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .full-width {
+            grid-column: span 2;
+        }
+        .preview-box {
+            background-color: #272822;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            min-height: 150px;
+            margin-bottom: 15px;
+        }
+        .btn-publish {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+        }
+        .btn-publish:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>NDC Alert Generator</h2>
+
+    <div class="grid-layout">
+        <div class="form-group">
+            <label for="title">Title:</label>
+            <select id="title"></select>
+        </div>
+
+        <div class="form-group">
+            <label for="severity">Severity:</label>
+            <select id="severity"></select>
+        </div>
+
+        <div class="form-group">
+            <label for="summary">Summary:</label>
+            <select id="summary"></select>
+        </div>
+
+        <div class="form-group">
+            <label for="hazard">Hazard:</label>
+            <select id="hazard"></select>
+        </div>
+
+        <div class="form-group">
+            <label for="direction">Direction:</label>
+            <select id="direction"></select>
+        </div>
+
+        <div class="form-group">
+            <label for="expires">Expires:</label>
+            <select id="expires"></select>
+        </div>
+
+        <div class="form-group">
+            <label for="extra">Extra:</label>
+            <select id="extra"></select>
+        </div>
+
+        <div class="form-group">
+            <label for="area">Area:</label>
+            <input type="text" id="area" placeholder="Enter area...">
+        </div>
+
+        <div class="form-group full-width">
+            <label for="extraVar">Extra Variable:</label>
+            <input type="text" id="extraVar" placeholder="Enter extra variable value...">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Generated Alert Preview:</label>
+        <div id="previewText" class="preview-box"></div>
+    </div>
+
+    <button class="btn-publish" onclick="publishAlert()">Publish to Discord</button>
+</div>
+
+<script>
+    // Configuration
+    const WEBHOOK_URL = "https://discord.com/api/webhooks/1473863302156390637/jB-EgZsd9GCIUOe_S3TDgudr4YRreHB3uSvXiEN_44B52h4Qd_oyhx33UGT9OE05JxZN";
+
+    const alertVariants = {
+        "title": [
+            "Test Alert", "Service Statement", "Special Weather Statement", "Flood Watch",
+            "Tropical Storm Watch", "Hurricane Watch", "Severe Thunderstorm Watch", "Tornado Watch",
+            "Severe Thunderstorm Warning", "Tornado Warning", "Flood Warning", "Tropical Storm Warning",
+            "Hurricane Warning", "PDS Flood Warning", "PDS Tornado Watch", "PDS Severe Thunderstorm Watch",
+            "PDS Severe Thunderstorm Warning", "PDS Tornado Warning", "Tornado Emergency",
+            "Civil Danger Alert", "Civil Danger Emergency"
+        ],
+        "severity": [
+            "No Severity", "Expired", "Problematic", "Severe", "Dangerous", "Violent", "Deadly", "Mass Casualty"
+        ],
+        "summary": [
+            "Unknown Summary, Dangerous Situation!", "Testing Summary", "Alert Service Offline.",
+            "Radio Service Currently Offline.", "Service or Services, Are back online and active!",
+            "S A S P C, Service Unavailable.", "S A N W S And S A W D M, Radar Service Offline.",
+            "This alert has expired early!", "Weather models predict flooding in this area!",
+            "Weather models predict major flooding in this area!",
+            "Dopplar Radar was tracking a Strong to Severe Thunderstorm in the warned area!",
+            "Dopplar Radar was tracking a Strong to Severe Thunderstorms capable of causing damage, in the warned area!",
+            "Dopplar Radar was tracking a line of Strong to Severe Thunderstorms in the warned area!",
+            "Dopplar Radar was tracking a line of Strong to Severe Thunderstorms capable of causing damage, in the warned area!",
+            "Dopplar Radar was tracking a line of Strong to Severe Thunderstorms causing damage in the warned area!",
+            "Dopplar Radar was tracking a Severe Thunderstorm Causing Damage in the warned area!",
+            "Dopplar Radar was tracking a Strong to Severe Thunderstorm capable of producing a tornado in the warned area!",
+            "Dopplar Radar was tracking a Strong to Severe Thunderstorm producing a damagaing tornado in the warned area!",
+            "Dopplar Radar confirmed a deadly tornado in the warned area!",
+            "Multiple severe storms expected from this watch!",
+            "Multiple severe storms capable of producing tornadoes, expected from this watch!",
+            "Multiple Tornadoes expected from this watch!",
+            "Multiple Strong to Violent Tornadoes Expected from this watch!",
+            "This tropical storm could produce heavy wind, heavy rain, and or a tornado, in the warned area!",
+            "This hurricane could produce life-threatening wind, major flooding, and a few tornadoes, in the warned area!",
+            "These storms or cluster of storms could cause flooding in the warned area!",
+            "These storms or cluster of storms will cause flooding in the warned area!",
+            "These storms or cluster of storms will cause life-threatening flooding in the warned area!",
+            "A mass casualty event has occoured, we are sorry. If you are trapped or injurged, do not attempt to fall asleep. call for help. help is on the way."
+        ],
+        "hazard": [
+            "No Hazards", "1 INCH Rain to fall.", "1 and a half INCH Rain to fall.", "2 INCH Rain to fall.",
+            "2 and a half INCH Rain to fall.", "3 INCH Rain to fall.", "4 INCH Rain to fall.", "5 INCH Rain to fall.",
+            "30 MPH Wind Gust", "45 MPH Wind Gust", "60 MPH Wind Gust", "70 MPH Wind Gust", "80 MPH Wind Gust", "90 MPH Wind Gust",
+            "30 MPH Wind Gust Quarter Inch Sized Hail", "30 MPH Wind Gust Half Inch Sized Hail", "30 MPH Wind Gust Inch Sized Hail",
+            "30 MPH Wind Gust Inch and a Half Sized Hail", "30 MPH Wind Gust Two Inch Sized Hail", "30 MPH Wind Gust Two Inch and a Half Sized Hail",
+            "45 MPH Wind Gust Quarter Inch Sized Hail", "45 MPH Wind Gust Half Inch Sized Hail", "45 MPH Wind Gust Inch Sized Hail",
+            "45 MPH Wind Gust Inch and a Half Sized Hail", "45 MPH Wind Gust Two Inch Sized Hail", "45 MPH Wind Gust Two Inch and a Half Sized Hail",
+            "60 MPH Wind Gust Quarter Inch Sized Hail", "60 MPH Wind Gust Half Inch Sized Hail", "60 MPH Wind Gust Inch Sized Hail",
+            "60 MPH Wind Gust Inch and a Half Sized Hail", "60 MPH Wind Gust Two Inch Sized Hail", "60 MPH Wind Gust Two Inch and a Half Sized Hail",
+            "70 MPH Wind Gust Quarter Inch Sized Hail", "70 MPH Wind Gust Half Inch Sized Hail", "70 MPH Wind Gust Inch Sized Hail",
+            "70 MPH Wind Gust Inch and a Half Sized Hail", "70 MPH Wind Gust Two Inch Sized Hail", "70 MPH Wind Gust Two Inch and a Half Sized Hail",
+            "80 MPH Wind Gust Quarter Inch Sized Hail", "80 MPH Wind Gust Half Inch Sized Hail", "80 MPH Wind Gust Inch Sized Hail",
+            "80 MPH Wind Gust Inch and a Half Sized Hail", "80 MPH Wind Gust Two Inch Sized Hail", "80 MPH Wind Gust Two Inch and a Half Sized Hail",
+            "90 MPH Wind Gust Quarter Inch Sized Hail", "90 MPH Wind Gust Half Inch Sized Hail", "90 MPH Wind Gust Inch Sized Hail",
+            "90 MPH Wind Gust Inch and a Half Sized Hail", "90 MPH Wind Gust Two Inch Sized Hail", "90 MPH Wind Gust Two Inch and a Half Sized Hail",
+            "Quarter Inch Sized Hail", "Half Inch Sized Hail", "Inch Sized Hail", "Inch and a Half Sized Hail", "Two Inch Sized Hail", "Two Inch and a Half Sized Hail",
+            "Radar Indincated Rotation", "Radar Indincated Tornado", "Radar Confirmed Rotation", "Radar Confirmed Tornado",
+            "Radar Confirmed Strong Tornado", "Radar Confirmed Deadly Tornado", "Spotters Confirmed Tornado", "Spotters Confirmed Violent Tornado",
+            "Spotters Confirmed Deadly Tornado", "Media Sources Confirmed Tornado", "Media Sources Confirmed Violent Tornado", "Media Sources Confirmed Deadly Tornado",
+            "Multiple severe storms expected from this watch!", "Multiple severe storms capable of producing tornadoes, expected from this watch!",
+            "Multiple Tornadoes expected from this watch!", "Multiple Strong to Violent Tornadoes Expected from this watch!",
+            "Tropical storm to cause damage to life and property in the warned area!", "Hurricane to cause damage to life and property in the warned area!",
+            "Flooding to cause damage to life and property in the warned area!", "Flooding to cause life-threatening damage to life and property in the warned area!"
+        ],
+        "direction": [
+            "No Direction", "North", "South", "East", "West", "North East", "South East", "North West", "South West"
+        ],
+        "expires": [
+            "Until Further Notice", "1", "15", "30", "45", "60", "75", "90", "120", "480", "720", "960", "1440", "2160"
+        ],
+        "extra": [
+            "This is a mass casualty event, we are sorry for any losses you may be reciving. A civil danger emergency is in effect.",
+            "This is a Particularly Dangerous Situation, This watch should not be taken lightly!",
+            "This is a Particularly Dangerous Situation, This watch should not be taken lightly! Remember a watch means conditions are favourable for severe weather and or tornadoes.",
+            "Remember a watch means conditions are favourable for severe weather and or tornadoes.",
+            "THIS IS NOT A TEST TAKE COVER NOW! If you see or hear a tornado go at once into a basement or sturdy most interior place in your home, and report the tornado to the National Weather Service, Law Enforcement, and NDC Discord, if safe to do so.",
+            "YOU ARE IN A LIFE-THREATENING SITUATION! Mobile Homes will be damaged or destroyed. Remember this is a Particularly Dangerous and Life-Threatening Situation. If you see or hear a tornado go at once into a basement or sturdy most interior place in your home, and report the tornado to the National Weather Service, Law Enforcement, and NDC Discord, if safe to do so.",
+            "YOU ARE IN A LIFE-THREATENING SITUATION! Mobile Homes will be destroyed. Poorly built homes will be destroyed. Cars will be lofted. Remember this is a Particularly Dangerous and Life-Threatening Emergency Situation. If you see or hear a tornado go at once into a basement or sturdy most interior place in your home, and report the tornado to the National Weather Service, Law Enforcement, and NDC Discord, if safe to do so.",
+            "Damage to vegitation, windshields, and shingles may occour.",
+            "Damage to vegitation, windshields, and shingles may occour. Remain Alert for a Possible Tornado from this storm!",
+            "The storm that prompted this {ex_var}, has weakedned below severe limits. Therefore this warning is cancelled.",
+            "The alert {ex_var}, storms that had prompted the watch have weakend below severe limits. Therefore this warning is cancelled.",
+            "This {ex_var} has been downgraded to a Tornado Warning, The storm has weakend below the alerts severe limits.",
+            "This {ex_var} has been downgraded to a Severe Thunderstorm Warning, The storm has weakend below the alerts severe limits.",
+            "This {ex_var} has been downgraded to a Special Weather Statement, The storm has weakend below the alerts severe limits.",
+            "This Alert and previous Service Alerts Have been Cancelled.",
+            "No extra information at this time.",
+            "{ex_var}",
+            "Extra Testing Summary."
+        ]
+    };
+
+    // Populate dropdown options programmatically
+    for (const [key, options] of Object.entries(alert_variants)) {
+        const selectElement = document.getElementById(key);
+        options.forEach(option => {
+            const opt = document.createElement('option');
+            opt.value = option;
+            opt.textContent = option;
+            selectElement.appendChild(opt);
+        });
+        selectElement.addEventListener('change', updatePreview);
+    }
+
+    document.getElementById('area').addEventListener('input', updatePreview);
+    document.getElementById('extraVar').addEventListener('input', updatePreview);
+
+    function updatePreview() {
+        let extraText = document.getElementById('extra').value;
+        const extraVarValue = document.getElementById('extraVar').value;
+
+        // Replace {ex_var} tag dynamically
+        if (extraText.includes("{ex_var}")) {
+            extraText = extraText.replaceAll("{ex_var}", extraVarValue);
+        }
+
+        let alertText = "[ALERT]\n";
+        alertText += `Title: ${document.getElementById('title').value}\n`;
+        alertText += `Severity: ${document.getElementById('severity').value}\n`;
+        alertText += `Summary: ${document.getElementById('summary').value}\n`;
+        alertText += `Hazard: ${document.getElementById('hazard').value}\n`;
+        alertText += `Area: ${document.getElementById('area').value}\n`;
+        alertText += `Direction: ${document.getElementById('direction').value}\n`;
+        alertText += `Expires: ${document.getElementById('expires').value}\n`;
+        alertText += `Extra: ${extraText}\n`;
+
+        document.getElementById('previewText').textContent = alertText;
+    }
+
+    async function publishAlert() {
+        const alertText = document.getElementById('previewText').textContent.trim();
+
+        if (!WEBHOOK_URL || WEBHOOK_URL.includes("PASTE_YOUR")) {
+            alert("Error: Please set your Discord Webhook URL.");
+            return;
+        }
+
+        const payload = { content: alertText };
+
+        try {
+            const response = await fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.status === 204) {
+                alert("Success: Alert Published to Discord!");
+            } else {
+                alert(`Error: Failed to send alert.\nStatus Code: ${response.status}`);
+            }
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+        }
+    }
+
+    // Initial population on page load
+    updatePreview();
+</script>
+
+</body>
+</html>
